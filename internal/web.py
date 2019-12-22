@@ -13,6 +13,7 @@ from handlers import france
 from handlers import uae
 from handlers import spain
 from handlers import switzerland
+from handlers import libya
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -68,6 +69,7 @@ cartogram_handlers = {
 'uae': uae.CartogramHandler(),
 'spain': spain.CartogramHandler(),
 'switzerland': switzerland.CartogramHandler(),
+'libya': libya.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
