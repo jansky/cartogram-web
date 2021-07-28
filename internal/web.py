@@ -87,6 +87,7 @@ from handlers import estonia
 from handlers import usa
 from handlers import brazil
 from handlers import china
+from handlers import china2
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -213,6 +214,7 @@ cartogram_handlers = {
 'usa': usa.CartogramHandler(),
 'brazil': brazil.CartogramHandler(),
 'china': china.CartogramHandler(),
+'china2': china2.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
