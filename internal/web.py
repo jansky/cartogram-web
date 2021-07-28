@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import cartwrap, gen2dict, geojson_extrema, awslambda, tracking, custom_captcha
 import settings
 import recaptcha_verify
@@ -268,7 +269,7 @@ def about():
 
 
 @app.route('/cartogram', methods=['GET'])
-def make_cartogram():
+def make_cartogram():    
     cartogram_handlers_select = []
 
     for key, handler in cartogram_handlers.items():
@@ -282,6 +283,27 @@ def make_cartogram():
                            cartogram_data_dir=url_for('static', filename='cartdata'),
                            cartogram_handlers=cartogram_handlers_select,
                            default_cartogram_handler=default_cartogram_handler, cartogram_version=settings.VERSION,
+                           tracking=tracking.determine_tracking_action(request))
+
+@app.route('/cartogram/<map_name>', methods=['GET'])
+def make_cartogram_by_name(map_name):
+
+    if map_name not in cartogram_handlers:
+        return Response('Error', status=500)
+    
+    cartogram_handlers_select = []
+
+    for key, handler in cartogram_handlers.items():
+        for selector_name in handler.selector_names():
+            cartogram_handlers_select.append({'id': key, 'display_name': selector_name})
+
+    cartogram_handlers_select.sort(key=lambda h: h['display_name'])
+
+    return render_template('new_index.html', page_active='cartogram', cartogram_url=url_for('cartogram'),
+                           cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),
+                           cartogram_data_dir=url_for('static', filename='cartdata'),
+                           cartogram_handlers=cartogram_handlers_select,
+                           default_cartogram_handler=map_name, cartogram_version=settings.VERSION,
                            tracking=tracking.determine_tracking_action(request))
 
 @app.route('/cookies', methods=['GET'])
@@ -463,6 +485,35 @@ def cartogram_by_key(string_key):
                            cartogramui_data=cartogram_entry.cartogramui_data, cartogram_version=settings.VERSION,
                            tracking=tracking.determine_tracking_action(request))
 
+@app.route('/embed/map/<map_name>', methods=['GET'])
+def cartogram_embed_by_map(map_name):
+
+    if map_name not in cartogram_handlers:
+        return Response('Error', status=500)
+
+    return render_template('embed.html', page_active='cartogram', cartogram_url=url_for('cartogram'),
+                           cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),
+                           cartogram_data_dir=url_for('static', filename='cartdata'),
+                           map_name=map_name, cartogram_version=settings.VERSION,
+                           tracking=tracking.determine_tracking_action(request))
+
+@app.route('/embed/cart/<string_key>', methods=['GET'])
+def cartogram_embed_by_key(string_key):
+    if not settings.USE_DATABASE:
+        return Response('Not found', status=404)
+
+    cartogram_entry = CartogramEntry.query.filter_by(string_key=string_key).first_or_404()
+
+    if cartogram_entry.handler not in cartogram_handlers:
+        return Response('Error', status=500)
+
+    return render_template('embed.html', page_active='cartogram', cartogram_url=url_for('cartogram'),
+                           cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),
+                           cartogram_data_dir=url_for('static', filename='cartdata'),
+                           default_cartogram_handler=cartogram_entry.handler,
+                           cartogram_data=cartogram_entry.cartogram_data,
+                           cartogramui_data=cartogram_entry.cartogramui_data, cartogram_version=settings.VERSION,
+                           tracking=tracking.determine_tracking_action(request))
 
 @app.route('/setprogress', methods=['POST'])
 def setprogress():
