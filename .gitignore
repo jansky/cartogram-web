@@ -3,5 +3,6 @@
 .idea/
 *.DS_Store
 data/*.csv
-internal/*.csv
+internal/*landarea.csv
+internal/*population.csv
 internal/*.svg
