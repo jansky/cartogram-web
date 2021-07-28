@@ -1,7 +1,7 @@
 import cartwrap, gen2dict, geojson_extrema, awslambda, tracking, custom_captcha
 import settings
 import recaptcha_verify
-from handlers import india, china, germany, brazil
+from handlers import india, china, germany
 
 # !!!DO NOT MODFIY THE FOLLOWING SECTION
 from handlers import srilanka
@@ -130,7 +130,6 @@ cartogram_handlers = {
     'india': india.CartogramHandler(),
     'china': china.CartogramHandler(),
     'germany': germany.CartogramHandler(),
-    'brazil': brazil.CartogramHandler(),
 'srilanka': srilanka.CartogramHandler(),
 'argentina': argentina.CartogramHandler(),
 'australia': australia.CartogramHandler(),
