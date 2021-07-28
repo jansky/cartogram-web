@@ -4,7 +4,6 @@ import recaptcha_verify
 from handlers import germany
 
 # !!!DO NOT MODFIY THE FOLLOWING SECTION
-from handlers import srilanka
 from handlers import argentina
 from handlers import australia
 from handlers import canada
@@ -132,7 +131,6 @@ redis_conn = redis.Redis(host=settings.CARTOGRAM_REDIS_HOST, port=settings.CARTO
 
 cartogram_handlers = {
     'germany': germany.CartogramHandler(),
-'srilanka': srilanka.CartogramHandler(),
 'argentina': argentina.CartogramHandler(),
 'australia': australia.CartogramHandler(),
 'canada': canada.CartogramHandler(),
