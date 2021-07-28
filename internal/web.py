@@ -85,6 +85,7 @@ from handlers import spain5
 from handlers import arab_league
 from handlers import estonia
 from handlers import usa
+from handlers import brazil
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -210,6 +211,7 @@ cartogram_handlers = {
 'arab_league': arab_league.CartogramHandler(),
 'estonia': estonia.CartogramHandler(),
 'usa': usa.CartogramHandler(),
+'brazil': brazil.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
