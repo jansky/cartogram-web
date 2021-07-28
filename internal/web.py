@@ -1,7 +1,7 @@
 import cartwrap, gen2dict, geojson_extrema, awslambda, tracking, custom_captcha
 import settings
 import recaptcha_verify
-from handlers import india, china, germany
+from handlers import india, germany
 
 # !!!DO NOT MODFIY THE FOLLOWING SECTION
 from handlers import srilanka
@@ -129,7 +129,6 @@ redis_conn = redis.Redis(host=settings.CARTOGRAM_REDIS_HOST, port=settings.CARTO
 
 cartogram_handlers = {
     'india': india.CartogramHandler(),
-    'china': china.CartogramHandler(),
     'germany': germany.CartogramHandler(),
 'srilanka': srilanka.CartogramHandler(),
 'argentina': argentina.CartogramHandler(),
