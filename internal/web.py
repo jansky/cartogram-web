@@ -1,14 +1,12 @@
+#!/usr/bin/env python
 import cartwrap, gen2dict, geojson_extrema, awslambda, tracking, custom_captcha
 import settings
 import recaptcha_verify
-from handlers import usa, india, china, germany, brazil
 
 # !!!DO NOT MODFIY THE FOLLOWING SECTION
-from handlers import srilanka
 from handlers import argentina
 from handlers import australia
 from handlers import canada
-from handlers import singapore
 from handlers import japan2
 from handlers import france
 from handlers import uae
@@ -17,7 +15,6 @@ from handlers import mexico
 from handlers import singaporePA
 from handlers import saudiArabia
 from handlers import netherlands
-from handlers import spain4
 from handlers import thailand
 from handlers import phl
 from handlers import israel3
@@ -45,7 +42,6 @@ from handlers import denmark
 from handlers import belgium
 from handlers import russia
 from handlers import nigeria
-from handlers import indonesia
 from handlers import luxembourg
 from handlers import bangladesh
 from handlers import sanMarino
@@ -80,6 +76,20 @@ from handlers import yemen
 from handlers import belarus
 from handlers import bahamas
 from handlers import guyana
+from handlers import washington
+from handlers import lebanon
+from handlers import spain5
+from handlers import arab_league
+from handlers import estonia
+from handlers import usa
+from handlers import brazil
+from handlers import china
+from handlers import china2
+from handlers import india
+from handlers import srilanka
+from handlers import germany
+from handlers import indonesia
+from handlers import singaporeRe
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -122,16 +132,9 @@ if settings.USE_DATABASE:
 redis_conn = redis.Redis(host=settings.CARTOGRAM_REDIS_HOST, port=settings.CARTOGRAM_REDIS_PORT, db=0)
 
 cartogram_handlers = {
-    'usa': usa.CartogramHandler(),
-    'india': india.CartogramHandler(),
-    'china': china.CartogramHandler(),
-    'germany': germany.CartogramHandler(),
-    'brazil': brazil.CartogramHandler(),
-'srilanka': srilanka.CartogramHandler(),
 'argentina': argentina.CartogramHandler(),
 'australia': australia.CartogramHandler(),
 'canada': canada.CartogramHandler(),
-'singapore': singapore.CartogramHandler(),
 'japan2': japan2.CartogramHandler(),
 'france': france.CartogramHandler(),
 'uae': uae.CartogramHandler(),
@@ -140,7 +143,6 @@ cartogram_handlers = {
 'singaporePA': singaporePA.CartogramHandler(),
 'saudiArabia': saudiArabia.CartogramHandler(),
 'netherlands': netherlands.CartogramHandler(),
-'spain4': spain4.CartogramHandler(),
 'thailand': thailand.CartogramHandler(),
 'phl': phl.CartogramHandler(),
 'israel3': israel3.CartogramHandler(),
@@ -168,7 +170,6 @@ cartogram_handlers = {
 'belgium': belgium.CartogramHandler(),
 'nigeria': nigeria.CartogramHandler(),
 'russia':russia.CartogramHandler(),
-'indonesia':indonesia.CartogramHandler(),
 'luxembourg': luxembourg.CartogramHandler(),
 'bangladesh': bangladesh.CartogramHandler(),
 'sanMarino': sanMarino.CartogramHandler(),
@@ -202,6 +203,20 @@ cartogram_handlers = {
 'belarus': belarus.CartogramHandler(),
 'bahamas': bahamas.CartogramHandler(),
 'guyana': guyana.CartogramHandler(),
+'washington': washington.CartogramHandler(),
+'lebanon': lebanon.CartogramHandler(),
+'spain5': spain5.CartogramHandler(),
+'arab_league': arab_league.CartogramHandler(),
+'estonia': estonia.CartogramHandler(),
+'usa': usa.CartogramHandler(),
+'brazil': brazil.CartogramHandler(),
+'china': china.CartogramHandler(),
+'china2': china2.CartogramHandler(),
+'india': india.CartogramHandler(),
+'srilanka': srilanka.CartogramHandler(),
+'germany': germany.CartogramHandler(),
+'indonesia': indonesia.CartogramHandler(),
+'singaporeRe': singaporeRe.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
@@ -254,7 +269,7 @@ def about():
 
 
 @app.route('/cartogram', methods=['GET'])
-def make_cartogram():
+def make_cartogram():    
     cartogram_handlers_select = []
 
     for key, handler in cartogram_handlers.items():
@@ -268,6 +283,27 @@ def make_cartogram():
                            cartogram_data_dir=url_for('static', filename='cartdata'),
                            cartogram_handlers=cartogram_handlers_select,
                            default_cartogram_handler=default_cartogram_handler, cartogram_version=settings.VERSION,
+                           tracking=tracking.determine_tracking_action(request))
+
+@app.route('/cartogram/<map_name>', methods=['GET'])
+def make_cartogram_by_name(map_name):
+
+    if map_name not in cartogram_handlers:
+        return Response('Error', status=500)
+    
+    cartogram_handlers_select = []
+
+    for key, handler in cartogram_handlers.items():
+        for selector_name in handler.selector_names():
+            cartogram_handlers_select.append({'id': key, 'display_name': selector_name})
+
+    cartogram_handlers_select.sort(key=lambda h: h['display_name'])
+
+    return render_template('new_index.html', page_active='cartogram', cartogram_url=url_for('cartogram'),
+                           cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),
+                           cartogram_data_dir=url_for('static', filename='cartdata'),
+                           cartogram_handlers=cartogram_handlers_select,
+                           default_cartogram_handler=map_name, cartogram_version=settings.VERSION,
                            tracking=tracking.determine_tracking_action(request))
 
 @app.route('/cookies', methods=['GET'])
@@ -449,6 +485,35 @@ def cartogram_by_key(string_key):
                            cartogramui_data=cartogram_entry.cartogramui_data, cartogram_version=settings.VERSION,
                            tracking=tracking.determine_tracking_action(request))
 
+@app.route('/embed/map/<map_name>', methods=['GET'])
+def cartogram_embed_by_map(map_name):
+
+    if map_name not in cartogram_handlers:
+        return Response('Error', status=500)
+
+    return render_template('embed.html', page_active='cartogram', cartogram_url=url_for('cartogram'),
+                           cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),
+                           cartogram_data_dir=url_for('static', filename='cartdata'),
+                           map_name=map_name, cartogram_version=settings.VERSION,
+                           tracking=tracking.determine_tracking_action(request))
+
+@app.route('/embed/cart/<string_key>', methods=['GET'])
+def cartogram_embed_by_key(string_key):
+    if not settings.USE_DATABASE:
+        return Response('Not found', status=404)
+
+    cartogram_entry = CartogramEntry.query.filter_by(string_key=string_key).first_or_404()
+
+    if cartogram_entry.handler not in cartogram_handlers:
+        return Response('Error', status=500)
+
+    return render_template('embed.html', page_active='cartogram', cartogram_url=url_for('cartogram'),
+                           cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),
+                           cartogram_data_dir=url_for('static', filename='cartdata'),
+                           default_cartogram_handler=cartogram_entry.handler,
+                           cartogram_data=cartogram_entry.cartogram_data,
+                           cartogramui_data=cartogram_entry.cartogramui_data, cartogram_version=settings.VERSION,
+                           tracking=tracking.determine_tracking_action(request))
 
 @app.route('/setprogress', methods=['POST'])
 def setprogress():
