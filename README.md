@@ -1,3 +1,8 @@
+# Repository Moved
+
+This repository has been moved to
+https://github.com/go-cart-io/cartogram-web.
+
 # Cartogram Web Visualization Project
 
 This project uses the cartogram generation algorithm written by Gastner et. al. in 2018 to create an interactive cartogram-generating website. To get the website running locally on your computer, please follow the Linux or Mac OS X setup guide in the `doc/` folder in this repository.
